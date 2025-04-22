@@ -12,6 +12,10 @@ categories = ["no-std"]
 
 [dependencies]
 
+[[bin]]
+name = "rust_os"
+test = false
+
 [profile.dev]
 panic = "abort"
 
