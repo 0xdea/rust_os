@@ -15,9 +15,3 @@ categories = ["no-std"]
 [[bin]]
 name = "rust_os"
 test = false
-
-[profile.dev]
-panic = "abort"
-
-[profile.release]
-panic = "abort"
