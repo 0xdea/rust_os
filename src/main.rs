@@ -4,7 +4,7 @@
 use core::panic::PanicInfo;
 
 /// String to print
-static HELLO: &[u8] = b"Hello World!";
+static HELLO: &[u8] = b"Hello, kernel world!";
 
 /// Color code for cyan
 const COLOR_CYAN: u8 = 0x0b;
