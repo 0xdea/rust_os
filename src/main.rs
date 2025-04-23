@@ -6,12 +6,12 @@
 //! >
 //! > -- The Rustonomicon
 //!
-//! My code for "Writing an OS in Rust", a blog series by [Philipp Oppermann](https://github.com/phil-opp) 
+//! My code for "Writing an OS in Rust", a blog series by [Philipp Oppermann](https://github.com/phil-opp)
 //! on OS development using Rust.
-//! 
+//!
 //! ## Blog post
 //! * *TBA*
-//! 
+//!
 //! ## See also
 //! * <https://os.phil-opp.com/>
 //! * <https://github.com/phil-opp/blog_os>
