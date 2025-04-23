@@ -16,3 +16,13 @@ bootloader = "0.9"
 [[bin]]
 name = "rust_os"
 test = false
+
+[lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+nursery = { level = "warn", priority = -1 }
+cargo = { level = "warn", priority = -1 }
+doc_markdown = "allow"
+
+[lints.rust]
+missing_docs = { level = "warn" }
