@@ -26,7 +26,7 @@ use core::panic::PanicInfo;
 static HELLO: &[u8] = b"Hello, kernel world!";
 
 /// Color code for cyan
-const COLOR_CYAN: u8 = 0x0b;
+const COLOR_LIGHTCYAN: u8 = 0x0b;
 
 /// Panic handler
 #[panic_handler]
@@ -43,7 +43,7 @@ pub extern "C" fn _start() -> ! {
     for (i, &byte) in HELLO.iter().enumerate() {
         unsafe {
             *vga_buffer.offset(i as isize * 2) = byte;
-            *vga_buffer.offset(i as isize * 2 + 1) = COLOR_CYAN;
+            *vga_buffer.offset(i as isize * 2 + 1) = COLOR_LIGHTCYAN;
         }
     }
 
