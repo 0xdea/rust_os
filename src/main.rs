@@ -22,6 +22,8 @@
 
 use core::panic::PanicInfo;
 
+mod vga_buffer;
+
 /// String to print
 static HELLO: &[u8] = b"Hello, kernel world!";
 
