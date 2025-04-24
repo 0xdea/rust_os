@@ -1,3 +1,5 @@
+use core::fmt;
+
 use volatile::Volatile;
 
 /// Color codes
@@ -82,12 +84,13 @@ impl Writer {
         }
     }
 
+    /// Wrap the line
     fn new_line(&mut self) {
         todo!();
     }
 
     /// Write a string to the screen buffer
-    pub fn write_str(&mut self, s: &str) {
+    pub fn write_string(&mut self, s: &str) {
         const PLACEHOLDER_CHAR: u8 = 0xfe;
 
         for byte in s.bytes() {
@@ -99,7 +102,15 @@ impl Writer {
     }
 }
 
+impl fmt::Write for Writer {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        self.write_string(s);
+        Ok(())
+    }
+}
+
 pub fn print_something() {
+    use core::fmt::Write;
     let mut writer = Writer {
         column_position: 0,
         color_code: ColorCode::new(Color::Yellow, Color::Black),
@@ -107,6 +118,7 @@ pub fn print_something() {
     };
 
     writer.write_byte(b'H');
-    writer.write_str("ello ");
-    writer.write_str("Wörld!");
+    writer.write_string("ello ");
+    writer.write_string("Wörld!");
+    write!(writer, "The numbers are {} and {}", 42, 1.0/3.0).unwrap();
 }
