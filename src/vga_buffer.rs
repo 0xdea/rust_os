@@ -1,12 +1,22 @@
 use core::fmt;
 
+use lazy_static::lazy_static;
+use spin::Mutex;
 use volatile::Volatile;
+
+lazy_static! {
+    pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
+        column_position: 0,
+        color_code: ColorCode::new(Color::Yellow, Color::Black),
+        buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
+    });
+}
 
 /// Color codes
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u8)]
-pub enum Color {
+enum Color {
     Black = 0,
     Blue = 1,
     Green = 2,
@@ -63,7 +73,7 @@ pub struct Writer {
 
 impl Writer {
     /// Write a single byte to the screen buffer
-    pub fn write_byte(&mut self, byte: u8) {
+    fn write_byte(&mut self, byte: u8) {
         match byte {
             b'\n' => self.new_line(),
 
@@ -85,7 +95,7 @@ impl Writer {
     }
 
     /// Write a string to the screen buffer
-    pub fn write_string(&mut self, s: &str) {
+    fn write_string(&mut self, s: &str) {
         const PLACEHOLDER_CHAR: u8 = 0xfe;
 
         for byte in s.bytes() {
@@ -131,18 +141,4 @@ impl fmt::Write for Writer {
         self.write_string(s);
         Ok(())
     }
-}
-
-pub fn print_something() {
-    use core::fmt::Write;
-    let mut writer = Writer {
-        column_position: 0,
-        color_code: ColorCode::new(Color::Yellow, Color::Black),
-        buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
-    };
-
-    writer.write_byte(b'H');
-    writer.write_string("ello ");
-    writer.write_string("Wörld!");
-    write!(writer, "The numbers are {} and {}", 42, 1.0 / 3.0).unwrap();
 }

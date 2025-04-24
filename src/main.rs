@@ -25,10 +25,7 @@ use core::panic::PanicInfo;
 mod vga_buffer;
 
 /// String to print
-static HELLO: &[u8] = b"Hello, kernel world!";
-
-/// Color code for cyan
-const COLOR_LIGHTCYAN: u8 = 0x0b;
+static HELLO: &str = "Hello, kernel world!";
 
 /// Panic handler
 #[panic_handler]
@@ -38,18 +35,18 @@ const fn panic(_info: &PanicInfo) -> ! {
 
 /// Program's entry point
 #[unsafe(no_mangle)]
-#[allow(clippy::cast_possible_wrap)]
-pub extern "C" fn _start() -> ! {
-    let vga_buffer = 0xb8000 as *mut u8;
+#[allow(clippy::missing_panics_doc)] // Writes to the VGA buffer never fail
+extern "C" fn _start() -> ! {
+    use core::fmt::Write;
 
-    for (i, &byte) in HELLO.iter().enumerate() {
-        unsafe {
-            *vga_buffer.offset(i as isize * 2) = byte;
-            *vga_buffer.offset(i as isize * 2 + 1) = COLOR_LIGHTCYAN;
-        }
-    }
-
-    vga_buffer::print_something();
+    vga_buffer::WRITER.lock().write_str(HELLO).unwrap();
+    write!(
+        vga_buffer::WRITER.lock(),
+        ", some numbers: {} {}",
+        42,
+        1.337
+    )
+    .unwrap();
 
     #[allow(clippy::empty_loop)]
     loop {}
