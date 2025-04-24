@@ -24,12 +24,10 @@ use core::panic::PanicInfo;
 
 mod vga_buffer;
 
-/// String to print
-static HELLO: &str = "Hello, kernel world!";
-
 /// Panic handler
 #[panic_handler]
-const fn panic(_info: &PanicInfo) -> ! {
+fn panic(info: &PanicInfo) -> ! {
+    println!("{}", info);
     loop {}
 }
 
@@ -37,16 +35,8 @@ const fn panic(_info: &PanicInfo) -> ! {
 #[unsafe(no_mangle)]
 #[allow(clippy::missing_panics_doc)] // Writes to the VGA buffer never fail
 extern "C" fn _start() -> ! {
-    use core::fmt::Write;
-
-    vga_buffer::WRITER.lock().write_str(HELLO).unwrap();
-    write!(
-        vga_buffer::WRITER.lock(),
-        ", some numbers: {} {}",
-        42,
-        1.337
-    )
-    .unwrap();
+    println!("Hello World{}", "!");
+    // panic!("Some panic message");
 
     #[allow(clippy::empty_loop)]
     loop {}

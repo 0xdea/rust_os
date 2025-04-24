@@ -12,6 +12,26 @@ lazy_static! {
     });
 }
 
+/// Print to the standard output
+#[macro_export]
+macro_rules! print {
+    ($($arg:tt)*) => ($crate::vga_buffer::print_helper(format_args!($($arg)*)));
+}
+
+/// Print to the standard output, with a newline
+#[macro_export]
+macro_rules! println {
+    () => ($crate::print!("\n"));
+    ($($arg:tt)*) => ($crate::print!("{}\n", format_args!($($arg)*)));
+}
+
+/// Helper function for the print macros
+#[doc(hidden)]
+pub fn print_helper(args: fmt::Arguments) {
+    use core::fmt::Write;
+    WRITER.lock().write_fmt(args).unwrap();
+}
+
 /// Color codes
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
