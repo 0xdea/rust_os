@@ -84,11 +84,6 @@ impl Writer {
         }
     }
 
-    /// Wrap the line
-    fn new_line(&mut self) {
-        todo!();
-    }
-
     /// Write a string to the screen buffer
     pub fn write_string(&mut self, s: &str) {
         const PLACEHOLDER_CHAR: u8 = 0xfe;
@@ -98,6 +93,35 @@ impl Writer {
                 0x20..=0x7e | b'\n' => self.write_byte(byte),
                 _ => self.write_byte(PLACEHOLDER_CHAR),
             }
+        }
+    }
+
+    /// Handle line wrapping
+    fn new_line(&mut self) {
+        // Shift every char up a row, shifting the first row off-screen
+        for row in 1..BUFFER_HEIGHT {
+            for col in 0..BUFFER_WIDTH {
+                let c = self.buffer.chars[row][col].read();
+                self.buffer.chars[row - 1][col].write(c);
+            }
+        }
+
+        // Start again at the beginning of the last row
+        self.clear_row(BUFFER_HEIGHT - 1);
+        self.column_position = 0;
+    }
+
+    /// Clear the specified row
+    fn clear_row(&mut self, row: usize) {
+        // Define a blank char as a space
+        let blank = ScreenChar {
+            ascii_char: b' ',
+            color_code: self.color_code,
+        };
+
+        // Overwrite all chars in a row with a blank char
+        for col in 0..BUFFER_WIDTH {
+            self.buffer.chars[row][col].write(blank);
         }
     }
 }
@@ -120,5 +144,5 @@ pub fn print_something() {
     writer.write_byte(b'H');
     writer.write_string("ello ");
     writer.write_string("Wörld!");
-    write!(writer, "The numbers are {} and {}", 42, 1.0/3.0).unwrap();
+    write!(writer, "The numbers are {} and {}", 42, 1.0 / 3.0).unwrap();
 }
