@@ -36,15 +36,15 @@ impl ColorCode {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(C)]
 struct ScreenChar {
-    ascii_character: u8,
+    ascii_char: u8,
     color_code: ColorCode,
 }
 
-/// Text buffer dimensions
+/// Screen buffer dimensions
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
 
-/// Text buffer
+/// Screen buffer
 #[repr(transparent)]
 struct Buffer {
     chars: [[ScreenChar; BUFFER_WIDTH]; BUFFER_HEIGHT],
@@ -55,4 +55,44 @@ pub struct Writer {
     column_position: usize,
     color_code: ColorCode,
     buffer: &'static mut Buffer,
+}
+
+impl Writer {
+    /// Write a single byte to the screen buffer
+    pub fn write_byte(&mut self, byte: u8) {
+        match byte {
+            b'\n' => self.new_line(),
+
+            byte => {
+                if self.column_position >= BUFFER_WIDTH {
+                    self.new_line();
+                }
+
+                let row = BUFFER_HEIGHT - 1;
+                let col = self.column_position;
+
+                self.buffer.chars[row][col] = ScreenChar {
+                    ascii_char: byte,
+                    color_code: self.color_code,
+                };
+                self.column_position += 1;
+            }
+        }
+    }
+
+    fn new_line(&mut self) {
+        todo!();
+    }
+
+    /// Write a string to the screen buffer
+    pub fn write_str(&mut self, s: &str) {
+        const PLACEHOLDER_CHAR: u8 = 0xfe;
+
+        for byte in s.bytes() {
+            match byte {
+                0x20..=0x7e | b'\n' => self.write_byte(byte),
+                _ => self.write_byte(PLACEHOLDER_CHAR),
+            }
+        }
+    }
 }
