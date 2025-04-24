@@ -12,6 +12,7 @@ categories = ["no-std"]
 
 [dependencies]
 bootloader = "0.9"
+volatile = "0.2.6"
 
 [[bin]]
 name = "rust_os"
