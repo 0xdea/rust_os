@@ -3,7 +3,7 @@ name = "rust_os"
 version = "0.1.0"
 authors = ["Marco Ivaldi <raptor@0xdeadbeef.info>", "Philipp Oppermann <dev@phil-opp.com>"]
 edition = "2024"
-description = "My code for \"Writing an OS in Rust\", a blog series by Philipp Oppermann on OS development using Rust."
+description = 'My code for "Writing an OS in Rust", a blog series by Philipp Oppermann on OS development using Rust.'
 homepage = "https://os.phil-opp.com/"
 repository = "https://github.com/0xdea/rust_os"
 license = "MIT"
@@ -12,13 +12,9 @@ categories = ["no-std"]
 
 [dependencies]
 bootloader = "0.9"
-volatile = "0.2.6"
+volatile = "0.2"
 lazy_static = { version = "1.5", features = ["spin_no_std"] }
 spin = "0.9"
-
-[[bin]]
-name = "rust_os"
-test = false
 
 [lints.clippy]
 all = { level = "warn", priority = -1 }
