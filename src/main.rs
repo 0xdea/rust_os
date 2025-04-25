@@ -20,7 +20,7 @@
 #![no_std]
 #![no_main]
 #![feature(custom_test_frameworks)]
-#![test_runner(crate::test_runner)]
+#![test_runner(crate::tests::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
 use core::panic::PanicInfo;
@@ -49,10 +49,21 @@ extern "C" fn _start() -> ! {
 }
 
 #[cfg(test)]
-fn test_runner(tests: &[&dyn Fn()]) {
-    println!("Running {} tests", tests.len());
-    for test in tests {
-        test();
+mod tests {
+    use crate::{print, println};
+
+pub fn test_runner(tests: &[&dyn Fn()]) {
+        println!("Running {} tests", tests.len());
+        for test in tests {
+            test();
+        }
+        println!("Ok");
     }
-    println!("Ok");
+
+    #[test_case]
+    fn trivial_assertion() {
+        print!("trivial assertion... ");
+        assert_eq!(1, 1);
+        println!("[ok]");
+    }
 }
