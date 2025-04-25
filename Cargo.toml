@@ -16,6 +16,9 @@ volatile = "0.2"
 lazy_static = { version = "1.5", features = ["spin_no_std"] }
 spin = "0.9"
 
+[package.metadata.bootimage]
+test-args = ["-device", "isa-debug-exit,iobase=0xf4,iosize=0x04"]
+
 [lints.clippy]
 all = { level = "warn", priority = -1 }
 pedantic = { level = "warn", priority = -1 }
