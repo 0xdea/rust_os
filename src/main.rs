@@ -35,6 +35,7 @@ fn panic(info: &PanicInfo) -> ! {
 }
 
 /// Program's entry point
+// noinspection RsUnresolvedPath
 #[unsafe(no_mangle)]
 #[allow(clippy::missing_panics_doc)] // Writes to the VGA buffer never fail
 extern "C" fn _start() -> ! {
