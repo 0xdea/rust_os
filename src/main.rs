@@ -35,7 +35,7 @@ fn panic(info: &PanicInfo) -> ! {
 }
 
 /// Program's entry point
-// noinspection RsUnresolvedPath
+//noinspection RsUnresolvedPath
 #[unsafe(no_mangle)]
 #[allow(clippy::missing_panics_doc)] // Writes to the VGA buffer never fail
 extern "C" fn _start() -> ! {
@@ -52,7 +52,7 @@ extern "C" fn _start() -> ! {
 mod tests {
     use crate::{print, println};
 
-pub fn test_runner(tests: &[&dyn Fn()]) {
+    pub fn test_runner(tests: &[&dyn Fn()]) {
         println!("Running {} tests", tests.len());
         for test in tests {
             test();
@@ -61,8 +61,10 @@ pub fn test_runner(tests: &[&dyn Fn()]) {
     }
 
     #[test_case]
+    #[allow(clippy::eq_op)]
     fn trivial_assertion() {
         print!("trivial assertion... ");
+
         assert_eq!(1, 1);
         println!("[ok]");
     }
