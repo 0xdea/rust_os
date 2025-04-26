@@ -27,6 +27,26 @@ use core::panic::PanicInfo;
 
 mod vga_buffer;
 
+/// Possible qemu exit codes
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[repr(u32)]
+pub enum QemuExitCode {
+    /// Success exit code
+    Success = 0x10,
+    /// Failure exit code
+    Failure = 0x11,
+}
+
+/// Exit qemu using the `isa-debug-exit` device
+pub fn exit_qemu(exit_code: QemuExitCode) {
+    use x86_64::instructions::port::Port;
+
+    unsafe {
+        let mut port = Port::new(0xf4);
+        port.write(exit_code as u32);
+    }
+}
+
 /// Panic handler
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
@@ -50,14 +70,14 @@ extern "C" fn _start() -> ! {
 
 #[cfg(test)]
 mod tests {
-    use crate::{print, println};
+    use crate::{exit_qemu, print, println, QemuExitCode};
 
     pub fn test_runner(tests: &[&dyn Fn()]) {
         println!("Running {} tests", tests.len());
         for test in tests {
             test();
         }
-        println!("Ok");
+        exit_qemu(QemuExitCode::Success);
     }
 
     #[test_case]
