@@ -25,6 +25,7 @@
 
 use core::panic::PanicInfo;
 
+mod serial;
 mod vga_buffer;
 
 /// Possible qemu exit codes
@@ -70,10 +71,10 @@ extern "C" fn _start() -> ! {
 
 #[cfg(test)]
 mod tests {
-    use crate::{exit_qemu, print, println, QemuExitCode};
+    use crate::{QemuExitCode, exit_qemu, serial_print, serial_println};
 
     pub fn test_runner(tests: &[&dyn Fn()]) {
-        println!("Running {} tests", tests.len());
+        serial_println!("Running {} tests", tests.len());
         for test in tests {
             test();
         }
@@ -83,9 +84,9 @@ mod tests {
     #[test_case]
     #[allow(clippy::eq_op)]
     fn trivial_assertion() {
-        print!("trivial assertion... ");
+        serial_print!("trivial assertion... ");
 
         assert_eq!(1, 1);
-        println!("[ok]");
+        serial_println!("[ok]");
     }
 }
