@@ -93,6 +93,7 @@ fn panic(info: &PanicInfo) -> ! {
 }
 
 /// Test mode entry point
+//noinspection RsUnresolvedPath
 #[cfg(test)]
 #[unsafe(no_mangle)]
 pub extern "C" fn _start() -> ! {

@@ -13,7 +13,9 @@ fn panic(info: &PanicInfo) -> ! {
     rust_os::test_panic_handler(info)
 }
 
-#[unsafe(no_mangle)] // don't mangle the name of this function
+/// Integration test entry point
+//noinspection RsUnresolvedPath
+#[unsafe(no_mangle)]
 extern "C" fn _start() -> ! {
     test_main();
 
