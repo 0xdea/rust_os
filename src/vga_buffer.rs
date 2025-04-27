@@ -1,3 +1,5 @@
+//! VGA buffer module
+
 use core::fmt;
 
 use lazy_static::lazy_static;
@@ -5,6 +7,7 @@ use spin::Mutex;
 use volatile::Volatile;
 
 lazy_static! {
+    /// Global screen writer
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
         column_position: 0,
         color_code: ColorCode::new(Color::Yellow, Color::Black),
