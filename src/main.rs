@@ -28,6 +28,24 @@ use core::panic::PanicInfo;
 mod serial;
 mod vga_buffer;
 
+/// Something that can be tested
+pub trait Testable {
+    /// Run the `Testable`
+    fn run(&self);
+}
+
+impl<T> Testable for T
+where
+    T: Fn(),
+{
+    fn run(&self) {
+        // Hack to print the function name
+        serial_print!("{}...\t", core::any::type_name::<T>());
+        self();
+        serial_println!("[ok]");
+    }
+}
+
 /// Possible qemu exit codes
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[repr(u32)]
@@ -82,12 +100,12 @@ extern "C" fn _start() -> ! {
 
 #[cfg(test)]
 mod tests {
-    use crate::{QemuExitCode, exit_qemu, serial_print, serial_println};
+    use crate::{QemuExitCode, Testable, exit_qemu, serial_print, serial_println};
 
-    pub fn test_runner(tests: &[&dyn Fn()]) {
+    pub fn test_runner(tests: &[&dyn Testable]) {
         serial_println!("Running {} tests", tests.len());
         for test in tests {
-            test();
+            test.run();
         }
         exit_qemu(QemuExitCode::Success);
     }
@@ -95,9 +113,6 @@ mod tests {
     #[test_case]
     #[allow(clippy::eq_op)]
     fn trivial_assertion() {
-        serial_print!("trivial assertion... ");
-
         assert_eq!(1, 1);
-        serial_println!("[ok]");
     }
 }
