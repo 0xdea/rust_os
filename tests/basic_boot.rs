@@ -22,3 +22,13 @@ extern "C" fn _start() -> ! {
     #[allow(clippy::empty_loop)]
     loop {}
 }
+
+#[cfg(test)]
+mod tests {
+    use rust_os::println;
+
+    #[test_case]
+    fn test_println() {
+        println!("test_println output");
+    }
+}
