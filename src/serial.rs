@@ -30,7 +30,7 @@ macro_rules! serial_println {
 /// Helper function for the print macros
 #[doc(hidden)]
 #[allow(dead_code)]
-pub fn print_helper(args: ::core::fmt::Arguments) {
+pub fn print_helper(args: core::fmt::Arguments) {
     use core::fmt::Write;
     SERIAL1
         .lock()
