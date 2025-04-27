@@ -180,6 +180,13 @@ mod tests {
     }
 
     #[test_case]
+    fn test_println_long() {
+        for _ in 0..200 {
+            print!("test_println_long output");
+        }
+    }
+
+    #[test_case]
     fn test_println_output() {
         let s = "Some test string that fits on a single line";
         println!("{}", s);
