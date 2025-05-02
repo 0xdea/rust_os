@@ -8,6 +8,7 @@
 
 use core::panic::PanicInfo;
 
+/// Panic handler
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     rust_os::test_panic_handler(info)
