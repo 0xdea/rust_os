@@ -27,6 +27,10 @@ test-args = [
 test-success-exit-code = 33 # (0x10 << 1) | 1
 test-timeout = 30 # (in seconds)
 
+[[test]]
+name = "should_panic"
+harness = false
+
 [lints.clippy]
 all = { level = "warn", priority = -1 }
 pedantic = { level = "warn", priority = -1 }
