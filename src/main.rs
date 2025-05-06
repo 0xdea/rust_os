@@ -35,7 +35,7 @@ extern "C" fn _start() -> ! {
     // Initialize the OS
     rust_os::init();
 
-    // invoke a breakpoint exception
+    // invoke a breakpoint interrupt
     x86_64::instructions::interrupts::int3();
 
     #[cfg(test)]
