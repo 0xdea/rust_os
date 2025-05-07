@@ -23,7 +23,7 @@ pub fn init_idt() {
     IDT.load();
 }
 
-/// Breakpoint interrupt handler
+/// Breakpoint exception handler
 extern "x86-interrupt" fn breakpoint_handler(stack_frame: InterruptStackFrame) {
     println!("EXCEPTION: BREAKPOINT\n{:#?}", stack_frame);
 }
@@ -32,7 +32,7 @@ extern "x86-interrupt" fn breakpoint_handler(stack_frame: InterruptStackFrame) {
 mod tests {
     #[test_case]
     fn test_breakpoint_exception() {
-        // invoke a breakpoint interrupt
+        // invoke a breakpoint exception
         x86_64::instructions::interrupts::int3();
     }
 }
