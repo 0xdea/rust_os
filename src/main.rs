@@ -35,10 +35,11 @@ extern "C" fn _start() -> ! {
     // Initialize the OS
     rust_os::init();
 
-    // trigger a page fault
-    unsafe {
-        *(0xdeadbeef as *mut u8) = 42;
-    };
+    // Trigger a kernel stack overflow
+    fn stack_overflow() {
+        stack_overflow();
+    }
+    stack_overflow();
 
     #[cfg(test)]
     test_main();
