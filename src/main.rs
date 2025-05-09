@@ -35,12 +35,6 @@ extern "C" fn _start() -> ! {
     // Initialize the OS
     rust_os::init();
 
-    // Trigger a kernel stack overflow
-    fn stack_overflow() {
-        stack_overflow();
-    }
-    stack_overflow();
-
     #[cfg(test)]
     test_main();
 

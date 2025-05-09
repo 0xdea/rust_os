@@ -13,8 +13,9 @@ lazy_static! {
 
         // Set handler functions
         unsafe {
+            // Use a dedicated stack for the double fault handler
             idt.double_fault.set_handler_fn(double_fault_handler)
-                .set_stack_index(gdt::DOUBLE_FAULT_IST_INDEX); // new
+                .set_stack_index(gdt::DOUBLE_FAULT_IST_INDEX);
         }
         idt.breakpoint.set_handler_fn(breakpoint_handler);
 
