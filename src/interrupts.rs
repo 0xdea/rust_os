@@ -6,7 +6,7 @@ use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
 use crate::println;
 
 lazy_static! {
-    /// Global IDT
+    /// IDT
     static ref IDT: InterruptDescriptorTable = {
         // Create the IDT
         let mut idt = InterruptDescriptorTable::new();
@@ -20,7 +20,7 @@ lazy_static! {
 }
 
 /// Load the IDT in the CPU
-pub fn init_idt() {
+pub fn init() {
     IDT.load();
 }
 

@@ -2,13 +2,14 @@
 
 use lazy_static::lazy_static;
 use x86_64::VirtAddr;
+use x86_64::structures::gdt::{Descriptor, GlobalDescriptorTable};
 use x86_64::structures::tss::TaskStateSegment;
 
 /// Index in the interrupt stack table for the double fault handler
 pub const DOUBLE_FAULT_IST_INDEX: u16 = 0;
 
 lazy_static! {
-    // Global TSS
+    // TSS
     static ref TSS: TaskStateSegment = {
         // Create the TSS
         let mut tss = TaskStateSegment::new();
@@ -27,4 +28,23 @@ lazy_static! {
 
         tss
     };
+}
+
+lazy_static! {
+    // GDT
+    static ref GDT: GlobalDescriptorTable = {
+        // Create the GDT
+        let mut gdt = GlobalDescriptorTable::new();
+
+        // Add the kernel code and TSS segments
+        gdt.append(Descriptor::kernel_code_segment());
+        gdt.append(Descriptor::tss_segment(&TSS));
+
+        gdt
+    };
+}
+
+/// Load the GDT in the CPU
+pub fn init() {
+    GDT.load();
 }

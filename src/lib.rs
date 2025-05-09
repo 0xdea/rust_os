@@ -90,7 +90,8 @@ pub fn exit_qemu(exit_code: QemuExitCode) {
 
 /// Initialize various aspects of the OS
 pub fn init() {
-    interrupts::init_idt();
+    gdt::init();
+    interrupts::init();
 }
 
 /// Panic handler
