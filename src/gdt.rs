@@ -2,7 +2,9 @@
 
 use lazy_static::lazy_static;
 use x86_64::VirtAddr;
-use x86_64::structures::gdt::{Descriptor, GlobalDescriptorTable};
+use x86_64::instructions::segmentation::{CS, Segment};
+use x86_64::instructions::tables::load_tss;
+use x86_64::structures::gdt::{Descriptor, GlobalDescriptorTable, SegmentSelector};
 use x86_64::structures::tss::TaskStateSegment;
 
 /// Index in the interrupt stack table for the double fault handler
@@ -30,21 +32,33 @@ lazy_static! {
     };
 }
 
+struct Selectors {
+    cs_sel: SegmentSelector,
+    tss_sel: SegmentSelector,
+}
+
 lazy_static! {
     // GDT
-    static ref GDT: GlobalDescriptorTable = {
-        // Create the GDT
+    static ref GDT: (GlobalDescriptorTable, Selectors) = {
+        // Create the GDT and the selectors
         let mut gdt = GlobalDescriptorTable::new();
+        let cs_sel = gdt.append(Descriptor::kernel_code_segment());
+        let tss_sel = gdt.append(Descriptor::tss_segment(&TSS));
 
         // Add the kernel code and TSS segments
         gdt.append(Descriptor::kernel_code_segment());
         gdt.append(Descriptor::tss_segment(&TSS));
 
-        gdt
+        (gdt, Selectors { cs_sel, tss_sel })
     };
 }
 
-/// Load the GDT in the CPU
+/// Load GDT, CS, and TSS in the CPU
 pub fn init() {
-    GDT.load();
+    GDT.0.load();
+
+    unsafe {
+        CS::set_reg(GDT.1.cs_sel);
+        load_tss(GDT.1.tss_sel);
+    }
 }
