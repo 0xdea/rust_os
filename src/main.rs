@@ -8,14 +8,14 @@
 
 use core::panic::PanicInfo;
 
-use rust_os::println;
+use rust_os::{hlt_loop, println};
 
 /// Panic handler
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     println!("{}", info);
-    loop {}
+    hlt_loop();
 }
 
 /// Panic handler for tests
@@ -39,10 +39,7 @@ extern "C" fn _start() -> ! {
     test_main();
 
     println!("It did not crash!");
-    #[allow(clippy::empty_loop)]
-    loop {
-        rust_os::print!("-");
-    }
+    hlt_loop();
 }
 
 #[cfg(test)]
