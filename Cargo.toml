@@ -17,6 +17,7 @@ lazy_static = { version = "1.5", features = ["spin_no_std"] }
 spin = "0.9"
 x86_64 = "0.15"
 uart_16550 = "0.3"
+pic8259 = "0.11"
 
 [package.metadata.bootimage]
 test-args = [

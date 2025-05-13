@@ -1,6 +1,7 @@
 //! Interrupts module
 
 use lazy_static::lazy_static;
+use pic8259::ChainedPics;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
 
 use crate::{gdt, println};
@@ -24,8 +25,23 @@ lazy_static! {
 }
 
 /// Load the IDT in the CPU
-pub fn init() {
+pub fn init_idt() {
     IDT.load();
+}
+
+/// PIC1 interrupt offset
+const PIC1_OFFSET: u8 = 32;
+
+/// PIC2 interrupt offset
+const PIC2_OFFSET: u8 = PIC1_OFFSET + 8;
+
+/// Chained PICs
+static PICS: spin::Mutex<ChainedPics> =
+    spin::Mutex::new(unsafe { ChainedPics::new(PIC1_OFFSET, PIC2_OFFSET) });
+
+/// Initialize the chained PICs
+pub fn init_pics() {
+    unsafe { PICS.lock().initialize() };
 }
 
 /// Double fault handler
