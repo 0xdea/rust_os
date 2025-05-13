@@ -76,6 +76,12 @@ extern "x86-interrupt" fn breakpoint_handler(stack_frame: InterruptStackFrame) {
 /// Timer interrupt handler
 extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFrame) {
     print!(".");
+
+    // Notify the end of interrupt
+    unsafe {
+        PICS.lock()
+            .notify_end_of_interrupt(InterruptIndex::Timer.as_u8());
+    }
 }
 
 #[cfg(test)]
