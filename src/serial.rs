@@ -35,8 +35,12 @@ macro_rules! serial_println {
 #[allow(dead_code)]
 pub fn print_helper(args: core::fmt::Arguments) {
     use core::fmt::Write;
-    SERIAL1
-        .lock()
-        .write_fmt(args)
-        .expect("Printing to serial failed");
+
+    // Print in an interrupt-free environment
+    x86_64::instructions::interrupts::without_interrupts(|| {
+        SERIAL1
+            .lock()
+            .write_fmt(args)
+            .expect("Printing to serial failed");
+    });
 }

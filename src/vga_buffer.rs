@@ -32,7 +32,11 @@ macro_rules! println {
 #[doc(hidden)]
 pub fn print_helper(args: fmt::Arguments) {
     use core::fmt::Write;
-    WRITER.lock().write_fmt(args).unwrap();
+
+    // Print in an interrupt-free environment
+    x86_64::instructions::interrupts::without_interrupts(|| {
+        WRITER.lock().write_fmt(args).unwrap();
+    });
 }
 
 /// Color codes
