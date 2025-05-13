@@ -40,7 +40,9 @@ extern "C" fn _start() -> ! {
 
     println!("It did not crash!");
     #[allow(clippy::empty_loop)]
-    loop {}
+    loop {
+        rust_os::print!("-");
+    }
 }
 
 #[cfg(test)]
