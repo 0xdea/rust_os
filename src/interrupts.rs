@@ -89,7 +89,9 @@ extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFr
 
 /// Keyboard interrupt handler
 extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStackFrame) {
-    print!("k");
+    let mut port = x86_64::instructions::port::Port::<u8>::new(0x60);
+    let scancode = unsafe { port.read() };
+    print!("{scancode}");
 
     unsafe {
         PICS.lock()
