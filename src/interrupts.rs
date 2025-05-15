@@ -1,7 +1,10 @@
 //! Interrupts module - interrupt handlers are defined here
 
 use lazy_static::lazy_static;
+use pc_keyboard::{DecodedKey, HandleControl, Keyboard, ScancodeSet1, layouts};
 use pic8259::ChainedPics;
+use spin::mutex::Mutex;
+use x86_64::instructions::port::Port;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
 
 use crate::{gdt, print, println};
@@ -90,25 +93,34 @@ extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFr
 /// Keyboard interrupt handler
 extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStackFrame) {
     const KEYBOARD_DATA_PORT: u16 = 0x60;
-    let mut port = x86_64::instructions::port::Port::<u8>::new(KEYBOARD_DATA_PORT);
+    let mut port = Port::<u8>::new(KEYBOARD_DATA_PORT);
 
-    let key = match unsafe { port.read() } {
-        0x02 => Some('1'),
-        0x03 => Some('2'),
-        0x04 => Some('3'),
-        0x05 => Some('4'),
-        0x06 => Some('5'),
-        0x07 => Some('6'),
-        0x08 => Some('7'),
-        0x09 => Some('8'),
-        0x0a => Some('9'),
-        0x0b => Some('0'),
-        _ => None,
-    };
-    if let Some(key) = key {
-        print!("{key}");
+    // Create a static `Keyboard` protected by a mutex
+    lazy_static! {
+        static ref KEYBOARD: Mutex<Keyboard<layouts::Us104Key, ScancodeSet1>> =
+            Mutex::new(Keyboard::new(
+                ScancodeSet1::new(),
+                layouts::Us104Key,
+                // Handle the Ctrl key like a normal key
+                HandleControl::Ignore
+            ));
     }
 
+    // Lock the mutex
+    let mut keyboard = KEYBOARD.lock();
+
+    // Read and process the scancode
+    let scancode = unsafe { port.read() };
+    if let Ok(Some(key_event)) = keyboard.add_byte(scancode) {
+        if let Some(key) = keyboard.process_keyevent(key_event) {
+            match key {
+                DecodedKey::Unicode(character) => print!("{character}"),
+                DecodedKey::RawKey(keycode) => print!("{keycode:?}"),
+            }
+        }
+    }
+
+    // Notify the end of interrupt
     unsafe {
         PICS.lock()
             .notify_end_of_interrupt(InterruptIndex::Keyboard.as_u8());
@@ -117,9 +129,11 @@ extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStac
 
 #[cfg(test)]
 mod tests {
+    use x86_64::instructions::interrupts::int3;
+
     #[test_case]
     fn test_breakpoint_exception() {
         // invoke a breakpoint exception
-        x86_64::instructions::interrupts::int3();
+        int3();
     }
 }
