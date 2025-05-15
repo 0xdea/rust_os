@@ -1,4 +1,4 @@
-//! Interrupts module
+//! Interrupts module - interrupt handlers are defined here
 
 use lazy_static::lazy_static;
 use pic8259::ChainedPics;
@@ -27,6 +27,8 @@ pub fn init_pics() {
 pub enum InterruptIndex {
     /// Timer interrupt
     Timer = PIC1_OFFSET,
+    /// Keyboard interrupt
+    Keyboard,
 }
 
 impl InterruptIndex {
@@ -50,6 +52,7 @@ lazy_static! {
         }
         idt.breakpoint.set_handler_fn(breakpoint_handler);
         idt[InterruptIndex::Timer.as_u8()].set_handler_fn(timer_interrupt_handler);
+        idt[InterruptIndex::Keyboard.as_u8()].set_handler_fn(keyboard_interrupt_handler);
 
         idt
     };
@@ -81,6 +84,16 @@ extern "x86-interrupt" fn timer_interrupt_handler(_stack_frame: InterruptStackFr
     unsafe {
         PICS.lock()
             .notify_end_of_interrupt(InterruptIndex::Timer.as_u8());
+    }
+}
+
+/// Keyboard interrupt handler
+extern "x86-interrupt" fn keyboard_interrupt_handler(_stack_frame: InterruptStackFrame) {
+    print!("k");
+
+    unsafe {
+        PICS.lock()
+            .notify_end_of_interrupt(InterruptIndex::Keyboard.as_u8());
     }
 }
 
