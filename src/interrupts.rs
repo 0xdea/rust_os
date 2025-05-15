@@ -3,7 +3,7 @@
 use lazy_static::lazy_static;
 use pc_keyboard::{DecodedKey, HandleControl, Keyboard, ScancodeSet1, layouts};
 use pic8259::ChainedPics;
-use spin::mutex::Mutex;
+use spin::Mutex;
 use x86_64::instructions::port::Port;
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
 
@@ -16,8 +16,7 @@ const PIC1_OFFSET: u8 = 32;
 const PIC2_OFFSET: u8 = PIC1_OFFSET + 8;
 
 /// Chained PICs
-static PICS: spin::Mutex<ChainedPics> =
-    spin::Mutex::new(unsafe { ChainedPics::new(PIC1_OFFSET, PIC2_OFFSET) });
+static PICS: Mutex<ChainedPics> = Mutex::new(unsafe { ChainedPics::new(PIC1_OFFSET, PIC2_OFFSET) });
 
 /// Initialize the chained PICs
 pub fn init_pics() {
