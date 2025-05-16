@@ -14,7 +14,7 @@ use rust_os::{hlt_loop, println};
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    println!("{}", info);
+    println!("{info}");
     hlt_loop();
 }
 

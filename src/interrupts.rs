@@ -5,9 +5,10 @@ use pc_keyboard::{DecodedKey, HandleControl, Keyboard, ScancodeSet1, layouts};
 use pic8259::ChainedPics;
 use spin::Mutex;
 use x86_64::instructions::port::Port;
-use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
+use x86_64::registers::control::Cr2;
+use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode};
 
-use crate::{gdt, print, println};
+use crate::{gdt, hlt_loop, print, println};
 
 /// PIC1 interrupt offset
 const PIC1_OFFSET: u8 = 32;
@@ -15,7 +16,7 @@ const PIC1_OFFSET: u8 = 32;
 /// PIC2 interrupt offset
 const PIC2_OFFSET: u8 = PIC1_OFFSET + 8;
 
-/// Chained PICs
+/// Chained Programmable Interrupt Controllers
 static PICS: Mutex<ChainedPics> = Mutex::new(unsafe { ChainedPics::new(PIC1_OFFSET, PIC2_OFFSET) });
 
 /// Initialize the chained PICs
@@ -41,7 +42,7 @@ impl InterruptIndex {
 }
 
 lazy_static! {
-    /// IDT
+    /// Interrupt Descriptor Table
     static ref IDT: InterruptDescriptorTable = {
         // Create the IDT
         let mut idt = InterruptDescriptorTable::new();
@@ -52,6 +53,7 @@ lazy_static! {
             idt.double_fault.set_handler_fn(double_fault_handler)
                 .set_stack_index(gdt::DOUBLE_FAULT_IST_INDEX);
         }
+        idt.page_fault.set_handler_fn(page_fault_handler);
         idt.breakpoint.set_handler_fn(breakpoint_handler);
         idt[InterruptIndex::Timer.as_u8()].set_handler_fn(timer_interrupt_handler);
         idt[InterruptIndex::Keyboard.as_u8()].set_handler_fn(keyboard_interrupt_handler);
@@ -70,12 +72,24 @@ extern "x86-interrupt" fn double_fault_handler(
     stack_frame: InterruptStackFrame,
     _error_code: u64,
 ) -> ! {
-    panic!("EXCEPTION: DOUBLE FAULT\n{:#?}", stack_frame);
+    panic!("EXCEPTION: DOUBLE FAULT\n{stack_frame:#?}");
+}
+
+// Page fault handler
+extern "x86-interrupt" fn page_fault_handler(
+    stack_frame: InterruptStackFrame,
+    error_code: PageFaultErrorCode,
+) {
+    println!("EXCEPTION: PAGE FAULT");
+    println!("Accessed Address: {:?}", Cr2::read());
+    println!("Error Code: {error_code:?}");
+    println!("{stack_frame:#?}");
+    hlt_loop();
 }
 
 /// Breakpoint exception handler
 extern "x86-interrupt" fn breakpoint_handler(stack_frame: InterruptStackFrame) {
-    println!("EXCEPTION: BREAKPOINT\n{:#?}", stack_frame);
+    println!("EXCEPTION: BREAKPOINT\n{stack_frame:#?}");
 }
 
 /// Timer interrupt handler
