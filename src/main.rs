@@ -35,6 +35,12 @@ extern "C" fn _start() -> ! {
     // Initialize the OS
     rust_os::init();
 
+    // Cause a page fault
+    let ptr = 0xdeadbeef as *mut u8;
+    unsafe {
+        *ptr = 42;
+    }
+
     #[cfg(test)]
     test_main();
 
