@@ -35,20 +35,11 @@ extern "C" fn _start() -> ! {
     // Initialize the OS
     rust_os::init();
 
-    // Cause a page fault
-    let ptr = 0x2050d9 as *mut u8;
-
-    // read from a code page
-    unsafe {
-        let _x = *ptr;
-    }
-    println!("read worked");
-
-    // write to a code page
-    unsafe {
-        *ptr = 42;
-    }
-    println!("write worked");
+    let (level_4_page_table, _) = x86_64::registers::control::Cr3::read();
+    println!(
+        "Level 4 page table at: {:?}",
+        level_4_page_table.start_address()
+    );
 
     #[cfg(test)]
     test_main();
