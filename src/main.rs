@@ -36,10 +36,19 @@ extern "C" fn _start() -> ! {
     rust_os::init();
 
     // Cause a page fault
-    let ptr = 0xdeadbeef as *mut u8;
+    let ptr = 0x2050d9 as *mut u8;
+
+    // read from a code page
+    unsafe {
+        let _x = *ptr;
+    }
+    println!("read worked");
+
+    // write to a code page
     unsafe {
         *ptr = 42;
     }
+    println!("write worked");
 
     #[cfg(test)]
     test_main();
