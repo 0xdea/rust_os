@@ -10,7 +10,9 @@
 use core::panic::PanicInfo;
 
 use bootloader::{BootInfo, entry_point};
+use rust_os::memory::active_level_4_table;
 use rust_os::{hlt_loop, println};
+use x86_64::VirtAddr;
 
 /// Panic handler
 #[cfg(not(test))]
@@ -32,17 +34,22 @@ entry_point!(kernel_main);
 /// Program's entry point
 //noinspection RsUnresolvedPath
 #[allow(clippy::missing_panics_doc)] // Writes to the VGA buffer never fail
-fn kernel_main(_boot_info: &'static BootInfo) -> ! {
+fn kernel_main(boot_info: &'static BootInfo) -> ! {
     println!("Hello World{}", "!");
 
     // Initialize the OS
     rust_os::init();
 
-    let (level_4_page_table, _) = x86_64::registers::control::Cr3::read();
-    println!(
-        "Level 4 page table at: {:?}",
-        level_4_page_table.start_address()
-    );
+    // Get the active level 4 table based on the physical memory offset provided by the bootloader
+    let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    let l4_table = unsafe { active_level_4_table(phys_mem_offset) };
+
+    // Iterate over the page table entries and print non-empty entries
+    for (i, entry) in l4_table.iter().enumerate() {
+        if !entry.is_unused() {
+            println!("L4 Entry {i}: {entry:?}");
+        }
+    }
 
     #[cfg(test)]
     test_main();
