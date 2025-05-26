@@ -24,7 +24,6 @@
 #![feature(let_chains)]
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
-#![allow(missing_docs)]
 
 use core::panic::PanicInfo;
 
