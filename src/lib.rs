@@ -24,8 +24,12 @@
 #![feature(let_chains)]
 #![test_runner(crate::test_runner)]
 #![reexport_test_harness_main = "test_main"]
+#![allow(missing_docs)]
 
 use core::panic::PanicInfo;
+
+#[cfg(test)]
+use bootloader::{BootInfo, entry_point};
 
 pub mod gdt;
 pub mod interrupts;
@@ -114,11 +118,13 @@ fn panic(info: &PanicInfo) -> ! {
     test_panic_handler(info)
 }
 
+#[cfg(test)]
+entry_point!(test_kernel_main);
+
 /// Test mode entry point
 //noinspection RsUnresolvedPath
 #[cfg(test)]
-#[unsafe(no_mangle)]
-pub extern "C" fn _start() -> ! {
+fn test_kernel_main(_boot_info: &'static BootInfo) -> ! {
     init();
     test_main();
     hlt_loop();

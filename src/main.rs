@@ -5,9 +5,11 @@
 #![feature(custom_test_frameworks)]
 #![test_runner(rust_os::test_runner)]
 #![reexport_test_harness_main = "test_main"]
+#![allow(missing_docs)]
 
 use core::panic::PanicInfo;
 
+use bootloader::{BootInfo, entry_point};
 use rust_os::{hlt_loop, println};
 
 /// Panic handler
@@ -25,11 +27,12 @@ pub fn panic(info: &PanicInfo) -> ! {
     rust_os::test_panic_handler(info)
 }
 
+entry_point!(kernel_main);
+
 /// Program's entry point
 //noinspection RsUnresolvedPath
-#[unsafe(no_mangle)]
 #[allow(clippy::missing_panics_doc)] // Writes to the VGA buffer never fail
-extern "C" fn _start() -> ! {
+fn kernel_main(_boot_info: &'static BootInfo) -> ! {
     println!("Hello World{}", "!");
 
     // Initialize the OS
