@@ -11,7 +11,7 @@ keywords = ["tutorial", "os", "bare-metal", "no-std"]
 categories = ["no-std"]
 
 [dependencies]
-bootloader = "0.9"
+bootloader = { version = "0.9", features = ["map_physical_memory"] }
 volatile = "0.2"
 lazy_static = { version = "1.5", features = ["spin_no_std"] }
 spin = "0.10.0"
@@ -47,3 +47,6 @@ multiple_crate_versions = "allow"
 
 [lints.rust]
 missing_docs = { level = "warn" }
+
+[profile.dev]
+debug = false
