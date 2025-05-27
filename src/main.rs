@@ -9,9 +9,10 @@
 use core::panic::PanicInfo;
 
 use bootloader::{BootInfo, entry_point};
-use rust_os::memory::translate_addr;
+use rust_os::memory;
 use rust_os::{hlt_loop, println};
 use x86_64::VirtAddr;
+use x86_64::structures::paging::Translate;
 
 /// Panic handler
 #[cfg(not(test))]
@@ -39,8 +40,9 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     // Initialize the OS
     rust_os::init();
 
-    // Get the physical memory offset provided by the bootloader
+    // Initialize a virtual to physical memory mapper
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
+    let mapper = unsafe { memory::init(phys_mem_offset) };
 
     // Translate some addresses
     let addresses = [
@@ -55,7 +57,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     ];
     for &address in &addresses {
         let virt = VirtAddr::new(address);
-        let phys = unsafe { translate_addr(virt, phys_mem_offset) };
+        let phys = mapper.translate_addr(virt);
         println!("{:?} -> {:?}", virt, phys);
     }
 
