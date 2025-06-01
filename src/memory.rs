@@ -9,6 +9,9 @@ use x86_64::{PhysAddr, VirtAddr};
 /// A FrameAllocator that always returns `None`.
 pub struct EmptyFrameAllocator;
 
+/// # Safety
+/// The implementer must guarantee that the allocator yields only unused frames. Our implementation
+/// always returns `None`, so this isn't a problem in this case.
 unsafe impl FrameAllocator<Size4KiB> for EmptyFrameAllocator {
     fn allocate_frame(&mut self) -> Option<PhysFrame> {
         None
@@ -55,7 +58,7 @@ unsafe fn active_level_4_table(physical_memory_offset: VirtAddr) -> &'static mut
 ///
 /// # Safety
 /// The caller must ensure that the frame is not already in use, as mapping to the same physical
-/// frame twice could result in undefined behavior. 
+/// frame twice could result in undefined behavior.
 /// FIXME: In our case, we reuse the VGA text buffer frame, so we break the required condition!
 ///
 /// # Panics
