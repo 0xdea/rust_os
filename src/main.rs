@@ -46,7 +46,7 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     let mut frame_allocator = memory::EmptyFrameAllocator;
 
     // Map an unused page (we chose virtual address 0x0 for this example) to the VGA buffer
-    let page = Page::containing_address(VirtAddr::new(0x0));
+    let page = Page::containing_address(VirtAddr::new(0xdeadbeef));
     memory::create_example_mapping(page, &mut mapper, &mut frame_allocator);
 
     // Write the string `New!` to the screen through the new mapping
