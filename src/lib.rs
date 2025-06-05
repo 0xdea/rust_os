@@ -30,6 +30,8 @@ use core::panic::PanicInfo;
 #[cfg(test)]
 use bootloader::{BootInfo, entry_point};
 
+extern crate alloc;
+
 pub mod gdt;
 pub mod interrupts;
 pub mod memory;
