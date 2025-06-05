@@ -12,7 +12,7 @@ use alloc::boxed::Box;
 use core::panic::PanicInfo;
 
 use bootloader::{BootInfo, entry_point};
-use rust_os::memory;
+use rust_os::{allocator, memory};
 use rust_os::{hlt_loop, println};
 use x86_64::VirtAddr;
 
@@ -48,7 +48,9 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     let mut frame_allocator =
         unsafe { memory::BootInfoFrameAllocator::init(&boot_info.memory_map) };
 
-    let x = Box::new(41);
+    allocator::init_heap(&mut mapper, &mut frame_allocator).expect("heap initialization failed");
+
+    let _x = Box::new(41);
 
     #[cfg(test)]
     test_main();
