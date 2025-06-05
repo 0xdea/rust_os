@@ -5,6 +5,8 @@ use x86_64::VirtAddr;
 use x86_64::structures::paging::mapper::MapToError;
 use x86_64::structures::paging::{FrameAllocator, Mapper, Page, PageTableFlags, Size4KiB};
 
+pub mod bump;
+
 /// Memory address where the heap starts
 pub const HEAP_START: usize = 0x0000_4444_4444_0000;
 /// Size of the heap in bytes
