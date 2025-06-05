@@ -12,7 +12,6 @@ use bootloader::{BootInfo, entry_point};
 use rust_os::memory;
 use rust_os::{hlt_loop, println};
 use x86_64::VirtAddr;
-use x86_64::structures::paging::Page;
 
 /// Panic handler
 #[cfg(not(test))]
@@ -45,18 +44,6 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     let mut mapper = unsafe { memory::init(phys_mem_offset) };
     let mut frame_allocator =
         unsafe { memory::BootInfoFrameAllocator::init(&boot_info.memory_map) };
-
-    // Map an unused page (we chose virtual address 0x0 for this example) to the VGA buffer
-    let page = Page::containing_address(VirtAddr::new(0xdeadbeef));
-    memory::create_example_mapping(page, &mut mapper, &mut frame_allocator);
-
-    // Write the string `New!` to the screen through the new mapping
-    let page_ptr: *mut u64 = page.start_address().as_mut_ptr();
-    unsafe {
-        page_ptr
-            .offset(0x100)
-            .write_volatile(0x_f021_f077_f065_f04e);
-    };
 
     #[cfg(test)]
     test_main();
