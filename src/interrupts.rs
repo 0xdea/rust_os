@@ -35,7 +35,7 @@ pub enum InterruptIndex {
 }
 
 impl InterruptIndex {
-    /// Return `InterruptIndex` as a `u8`
+    /// Return [`InterruptIndex`] as a `u8`
     const fn as_u8(self) -> u8 {
         self as u8
     }

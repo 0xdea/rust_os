@@ -5,10 +5,11 @@ use x86_64::registers::control::Cr3;
 use x86_64::structures::paging::{FrameAllocator, OffsetPageTable, PageTable, PhysFrame, Size4KiB};
 use x86_64::{PhysAddr, VirtAddr};
 
-/// A FrameAllocator that always returns `None`
+/// A [`FrameAllocator`] that always returns `None`
 pub struct EmptyFrameAllocator;
 
-/// # Safety
+/// ## Safety
+///
 /// The implementer must guarantee that the allocator yields only unused frames. Our implementation
 /// always returns `None`, so this isn't a problem in this case.
 unsafe impl FrameAllocator<Size4KiB> for EmptyFrameAllocator {
@@ -17,16 +18,17 @@ unsafe impl FrameAllocator<Size4KiB> for EmptyFrameAllocator {
     }
 }
 
-/// A FrameAllocator that returns usable frames from the bootloader's memory map
+/// A [`FrameAllocator`] that returns usable frames from the bootloader's memory map
 pub struct BootInfoFrameAllocator {
     memory_map: &'static MemoryMap,
     next: usize,
 }
 
 impl BootInfoFrameAllocator {
-    /// Create a FrameAllocator from the passed memory map.
+    /// Create a [`FrameAllocator`] from the passed memory map.
     ///
-    /// # Safety
+    /// ## Safety
+    ///
     /// The caller must guarantee that the passed memory map is valid. The main requirement is that all
     /// frames that are marked as `USABLE` in it are really unused.
     #[must_use]
@@ -65,10 +67,11 @@ unsafe impl FrameAllocator<Size4KiB> for BootInfoFrameAllocator {
     }
 }
 
-/// Initialize a new OffsetPageTable that uses the given offset to convert virtual to physical
+/// Initialize a new [`OffsetPageTable`] that uses the given offset to convert virtual to physical
 /// addresses.
 ///
-/// # Safety
+/// ## Safety
+///
 /// The caller must guarantee that the complete physical memory is mapped to virtual memory at the
 /// specified `physical_memory_offset`. In addition, this function must be only called once to avoid
 /// aliasing `&mut` references (which is undefined behavior).
@@ -83,9 +86,10 @@ pub unsafe fn init(physical_memory_offset: VirtAddr) -> OffsetPageTable<'static>
 
 /// Private function that returns a mutable reference to the active level 4 table.
 ///
-/// # Safety
+/// ## Safety
+///
 /// The caller must guarantee that the complete physical memory is mapped to virtual memory at the
-/// specified `physical_memory_offset`. In addition, this function must be only called once to avoid
+/// specified [`physical_memory_offset`]. In addition, this function must be only called once to avoid
 /// aliasing `&mut` references (which is undefined behavior).
 #[must_use]
 unsafe fn active_level_4_table(physical_memory_offset: VirtAddr) -> &'static mut PageTable {

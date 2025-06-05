@@ -41,7 +41,7 @@ pub mod vga_buffer;
 
 /// Something that can be tested
 pub trait Testable {
-    /// Run the `Testable`
+    /// Run the [`Testable`] object
     fn run(&self);
 }
 
