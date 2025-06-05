@@ -1,12 +1,13 @@
 //! Memory module
 
+use bootloader::bootinfo::{MemoryMap, MemoryRegionType};
 use x86_64::registers::control::Cr3;
 use x86_64::structures::paging::{
     FrameAllocator, Mapper, OffsetPageTable, Page, PageTable, PhysFrame, Size4KiB,
 };
 use x86_64::{PhysAddr, VirtAddr};
 
-/// A FrameAllocator that always returns `None`.
+/// A FrameAllocator that always returns `None`
 pub struct EmptyFrameAllocator;
 
 /// # Safety
@@ -15,6 +16,54 @@ pub struct EmptyFrameAllocator;
 unsafe impl FrameAllocator<Size4KiB> for EmptyFrameAllocator {
     fn allocate_frame(&mut self) -> Option<PhysFrame> {
         None
+    }
+}
+
+/// A FrameAllocator that returns usable frames from the bootloader's memory map
+pub struct BootInfoFrameAllocator {
+    memory_map: &'static MemoryMap,
+    next: usize,
+}
+
+impl BootInfoFrameAllocator {
+    /// Create a FrameAllocator from the passed memory map.
+    ///
+    /// # Safety
+    /// The caller must guarantee that the passed memory map is valid. The main requirement is that all
+    /// frames that are marked as `USABLE` in it are really unused.
+    #[must_use]
+    pub const unsafe fn init(memory_map: &'static MemoryMap) -> Self {
+        Self {
+            memory_map,
+            next: 0,
+        }
+    }
+
+    /// Return an iterator over the usable frames specified in the memory map
+    fn usable_frames(&self) -> impl Iterator<Item = PhysFrame> {
+        const PAGE_SIZE: usize = 4096;
+
+        // Get usable regions from the memory map
+        let regions = self.memory_map.iter();
+        let usable_regions = regions.filter(|r| r.region_type == MemoryRegionType::Usable);
+
+        // Map each region to its address range
+        let addr_ranges = usable_regions.map(|r| r.range.start_addr()..r.range.end_addr());
+
+        // Transform to an iterator of frame start addresses (the bootloader already page-aligns all
+        // usable memory regions, so no alignment code is needed here)
+        let frame_addresses = addr_ranges.flat_map(|r| r.step_by(PAGE_SIZE));
+
+        // Convert each start address to `PhysFrame` to construct the iterator
+        frame_addresses.map(|addr| PhysFrame::containing_address(PhysAddr::new(addr)))
+    }
+}
+
+unsafe impl FrameAllocator<Size4KiB> for BootInfoFrameAllocator {
+    fn allocate_frame(&mut self) -> Option<PhysFrame> {
+        let frame = self.usable_frames().nth(self.next);
+        self.next += 1;
+        frame
     }
 }
 

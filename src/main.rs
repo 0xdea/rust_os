@@ -43,7 +43,8 @@ fn kernel_main(boot_info: &'static BootInfo) -> ! {
     // Initialize a virtual to physical memory mapper and a frame allocator
     let phys_mem_offset = VirtAddr::new(boot_info.physical_memory_offset);
     let mut mapper = unsafe { memory::init(phys_mem_offset) };
-    let mut frame_allocator = memory::EmptyFrameAllocator;
+    let mut frame_allocator =
+        unsafe { memory::BootInfoFrameAllocator::init(&boot_info.memory_map) };
 
     // Map an unused page (we chose virtual address 0x0 for this example) to the VGA buffer
     let page = Page::containing_address(VirtAddr::new(0xdeadbeef));
