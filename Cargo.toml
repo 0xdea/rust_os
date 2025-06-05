@@ -46,8 +46,5 @@ cargo = { level = "warn", priority = -1 }
 doc_markdown = "allow"
 multiple_crate_versions = "allow"
 
-[lints.rust]
-missing_docs = { level = "warn" }
-
 [profile.dev]
 debug = false

@@ -5,7 +5,10 @@
 
 use core::panic::PanicInfo;
 
+use bootloader::{BootInfo, entry_point};
 use rust_os::{QemuExitCode, exit_qemu, hlt_loop, serial_print, serial_println};
+
+entry_point!(main);
 
 /// Panic handler
 #[panic_handler]
@@ -16,9 +19,7 @@ fn panic(_info: &PanicInfo) -> ! {
 }
 
 /// Integration test entry point
-//noinspection RsUnresolvedPath
-#[unsafe(no_mangle)]
-pub extern "C" fn _start() -> ! {
+fn main(_boot_info: &'static BootInfo) -> ! {
     should_fail();
     serial_println!("[test did not panic]");
     exit_qemu(QemuExitCode::Failure);

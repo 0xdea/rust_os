@@ -6,6 +6,7 @@
 
 use core::panic::PanicInfo;
 
+use bootloader::{BootInfo, entry_point};
 use lazy_static::lazy_static;
 use rust_os::{QemuExitCode, exit_qemu, hlt_loop, serial_print, serial_println};
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame};
@@ -32,6 +33,8 @@ pub fn init_test_idt() {
     TEST_IDT.load();
 }
 
+entry_point!(main);
+
 /// Panic handler
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
@@ -39,9 +42,8 @@ fn panic(info: &PanicInfo) -> ! {
 }
 
 /// Integration test entry point
-#[unsafe(no_mangle)]
 #[allow(clippy::missing_panics_doc)]
-pub extern "C" fn _start() -> ! {
+fn main(_boot_info: &'static BootInfo) -> ! {
     serial_print!("stack_overflow::stack_overflow... ");
 
     // Initialize the OS with a custom IDT

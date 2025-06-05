@@ -8,7 +8,10 @@
 
 use core::panic::PanicInfo;
 
+use bootloader::{BootInfo, entry_point};
 use rust_os::hlt_loop;
+
+entry_point!(main);
 
 /// Panic handler
 #[panic_handler]
@@ -18,8 +21,7 @@ fn panic(info: &PanicInfo) -> ! {
 
 /// Integration test entry point
 //noinspection RsUnresolvedPath
-#[unsafe(no_mangle)]
-extern "C" fn _start() -> ! {
+fn main(_boot_info: &'static BootInfo) -> ! {
     test_main();
     hlt_loop();
 }
